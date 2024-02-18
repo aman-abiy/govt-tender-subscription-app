@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "1025299389487",
+    "project_id": "alpha-tenders",
+    "storage_bucket": "alpha-tenders.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1025299389487:android:10d67f3833d59a78c5fada",
+        "android_client_info": {
+          "package_name": "com.arppotechnologies.alphatenders"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1025299389487-fsl4c06obrbgdggsftibcncgeg8tlr7l.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.arppotechnologies.alphatenders",
+            "certificate_hash": "277375603f0b9c38fb81052a499713518e66a90a"
+          }
+        },
+        {
+          "client_id": "1025299389487-vncc3lhqidq3j7k4v79asprv31gi87t3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCxNuV_rOvUlWuP7hutDX2C2y9NfT6MjBQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1025299389487-vncc3lhqidq3j7k4v79asprv31gi87t3.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

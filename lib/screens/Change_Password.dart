@@ -1,0 +1,186 @@
+import 'package:alpha_tenders_mobile_app/dtos/Login_Credentials.dart';
+import 'package:alpha_tenders_mobile_app/providers/account.dart';
+import 'package:alpha_tenders_mobile_app/style/button_style.dart';
+import 'package:alpha_tenders_mobile_app/style/hex_color.dart';
+import 'package:alpha_tenders_mobile_app/style/input_decoration.dart';
+import 'package:alpha_tenders_mobile_app/style/text_theme.dart';
+import 'package:alpha_tenders_mobile_app/utils/consts.dart';
+import 'package:alpha_tenders_mobile_app/utils/routes.dart';
+import 'package:alpha_tenders_mobile_app/utils/validators.dart';
+import 'package:alpha_tenders_mobile_app/widgets/button_loading_indicator.dart';
+import 'package:alpha_tenders_mobile_app/widgets/error.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/src/foundation/key.dart';
+import 'package:flutter/src/widgets/framework.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:ionicons/ionicons.dart';
+import 'package:provider/provider.dart';
+
+class ChangePasswordPage extends StatefulWidget {
+  const ChangePasswordPage({Key key}) : super(key: key);
+
+  @override
+  State<ChangePasswordPage> createState() => _ChangePasswordPageState();
+}
+
+class _ChangePasswordPageState extends State<ChangePasswordPage> {
+  LoginCredentials loginCredentials = LoginCredentials();
+  final _formKey = GlobalKey<FormState>();
+  
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: HexColor('#1c2e59'),
+        title: const Text(CHANGE_PASSWORD_PAGE_TITLE),        
+      ),
+      body: Consumer<AccountProvider>(
+        builder: (context, accountProvider, child) {
+          return ListView(
+            padding: const EdgeInsets.symmetric(horizontal: 15.0),
+            children: [
+              const SizedBox(
+                height: 10,
+              ),
+              Container(
+                height: 50,
+                width: MediaQuery.of(context).size.width,
+                margin: const EdgeInsets.symmetric(vertical: 5.0),
+                padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 15.0),
+                decoration: BoxDecoration(
+                  borderRadius: const BorderRadius.all(Radius.circular(5.0)),
+                  color: Colors.white,
+                  border: Border.all(color: HexColor('#d6d8db'))
+                ),
+                child: Text(CHANGE_PASSWORD_PAGE_TITLE,
+                  style: textTheme.headline2
+                ),
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              Container(
+                width: MediaQuery.of(context).size.width,
+                margin: const EdgeInsets.symmetric(vertical: 5.0),
+                padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 15.0),
+                decoration: BoxDecoration(
+                  borderRadius: const BorderRadius.all(Radius.circular(5.0)),
+                  color: HexColor('#cce5ff'),
+                  border: Border.all(color: HexColor('#b8daff'))
+                ),
+                child: Text('After you change your password, you will be logged out and you will have to Login again.',
+                    style: TextStyle(fontSize: 14, color: HexColor('#004085')
+                  ),
+                ), 
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              Container(
+                width: MediaQuery.of(context).size.width,
+                margin: const EdgeInsets.symmetric(vertical: 5.0),
+                padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 15.0),
+                decoration: BoxDecoration(
+                  borderRadius: const BorderRadius.all(Radius.circular(5.0)),
+                  color: Colors.white,
+                  border: Border.all(color: HexColor('#d6d8db'))
+                ),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    children: [
+                      const ErrorMessage(),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      SizedBox(
+                        height: 45.0,
+                        child: TextFormField(
+                          keyboardType: TextInputType.visiblePassword,
+                          obscureText: true,
+                          autofocus: false,
+                          autocorrect: false,
+                          validator: Validators.passwordValidator,
+                          onSaved: (String val) {
+                            if (val != null) {
+                              loginCredentials.password = val.trim();
+                            }
+                          },
+                          style: const TextStyle(fontSize: 15.0),
+                          decoration: inputDecoration(
+                            'Password',
+                            const Icon(Ionicons.lock_closed_outline, size: 20),
+                            null,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(
+                        height: 10.0,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width * 0.25,
+                            child: TextButton(
+                              child: Text('Close', style: TextStyle(color: Colors.grey.shade600),),
+                              style: buttonStyle('#eff2f4', borderRadius: 5.0, borderHexColor: '#dadadd'),
+                              onPressed: () => Navigator.of(context).pop(),
+                            ),
+                          ),
+                          const SizedBox(
+                            width: 15.0,
+                          ),
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width * 0.25,
+                            child: TextButton(
+                              child: accountProvider.isLoading ? const ButtonLoadingIndicator() : const Text('Save', style: TextStyle(color: Colors.white),),
+                              style: buttonStyle('#1a79de', borderRadius: 5.0),
+                              onPressed: () async{ 
+                                final form = _formKey.currentState;
+                                if (form.validate()) {
+                                  form.save();
+                                  bool pwdChangeStatus = await accountProvider.changePassword(loginCredentials);
+                                  if(pwdChangeStatus) {
+                                    Fluttertoast.showToast(
+                                      msg: PASSWORD_CHANGED_STATUS_MSG,
+                                      gravity: ToastGravity.BOTTOM,
+                                      toastLength: Toast.LENGTH_LONG
+                                    );
+                                    bool logoutStatus = await accountProvider.logout();
+                                    if(logoutStatus) {
+                                      Navigator.of(context).pushNamed(Routes.EMAIL_LOGIN);
+                                    } else {
+                                      Fluttertoast.showToast(
+                                        msg: LOGOUT_UNSUCCESSFUL_STATUS_MSG,
+                                        gravity: ToastGravity.BOTTOM,
+                                        toastLength: Toast.LENGTH_LONG
+                                      );
+                                    }
+                                  } else {
+                                    Fluttertoast.showToast(
+                                      msg: PASSWORD_CHANGE_FAILED_STATUS_MSG,
+                                      gravity: ToastGravity.BOTTOM,
+                                      toastLength: Toast.LENGTH_LONG
+                                    );
+                                  }
+                                }
+                              },
+                            ),
+                          ),
+                        ],
+                      )
+                    ],
+                  ),
+                )
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+            ],
+          );
+        }
+      )
+    );
+  }
+}
